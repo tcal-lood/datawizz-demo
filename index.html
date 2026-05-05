@@ -726,7 +726,7 @@ const MODEL_INFO = {
 function classify(text) {
   const t = text.toLowerCase();
   const isDataLoss   = /delet|lost|missing|recover|gone|accidental|trash|history|2 year/i.test(t);
-  const isAPI        = /api|401|403|endpoint|token|integration|webhook|/v1|query.*param/i.test(t);
+  const isAPI        = /api|401|403|endpoint|token|integration|webhook|query.*param/i.test(t);
   const isBilling    = /charg|bill|invoice|refund|payment|subscri|paid|price|plan|cost|\$16/i.test(t);
   const isPassword   = /password|reset|email.*not.*arriv|can'?t.*log|forgot|sign.?in|login/i.test(t);
   const isPermission = /permission|denied|share|access|can'?t.*see|not.*visible|member|guest/i.test(t);
