@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notion Support Triage Agent · Datawizz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream:    #F2EDE7;
+    --black:    #0E0E0E;
+    --offblk:   #1C1C1C;
+    --charcoal: #2A2A2A;
+    --muted:    #888;
+    --border:   #D5CFC9;
+    --white:    #FFFFFF;
+    --green:    #1A6B52;
+    --green-lt: #E8F5F0;
+    --amber:    #7A4800;
+    --amber-lt: #FEF3E2;
+    --red:      #8B1A1A;
+    --red-lt:   #FDEAEA;
+    --teal:     #0D7377;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--black);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HEADER ───────────────────────────────────────── */
+  header {
+    background: var(--black);
+    padding: 0 48px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .header-sep {
+    width: 1px;
+    height: 18px;
+    background: #2A2A2A;
+  }
+
+  .header-product {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    color: #666;
+    font-weight: 300;
+  }
+
+  .header-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding: 3px 8px;
+    border: 1px solid #2A2A2A;
+    color: #555;
+    border-radius: 2px;
+  }
+
+  /* ── HERO ─────────────────────────────────────────── */
+  .hero {
+    padding: 72px 48px 48px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.05;
+    color: var(--black);
+    margin-bottom: 20px;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: #555;
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 560px;
+    margin-bottom: 48px;
+  }
+
+  /* ── STATS ROW ────────────────────────────────────── */
+  .stats-row {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--white);
+    margin-bottom: 48px;
+    max-width: 640px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .stat {
+    flex: 1;
+    padding: 20px 24px;
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+
+  .stat-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--black);
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ── MAIN LAYOUT ──────────────────────────────────── */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 48px 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* ── INPUT PANEL ──────────────────────────────────── */
+  .panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .panel-body { padding: 20px; }
+
+  textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--black);
+    line-height: 1.6;
+    resize: none;
+    min-height: 130px;
+    outline: none;
+    transition: border-color 0.15s;
+    background: var(--cream);
+  }
+  textarea:focus { border-color: var(--black); }
+  textarea::placeholder { color: #BBBBBB; }
+
+  .examples-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 16px 0 10px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 5px 11px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--charcoal);
+    background: var(--cream);
+    transition: all 0.12s;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--black); background: var(--white); }
+
+  .run-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--black);
+    color: var(--white);
+    border: none;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.15s;
+    letter-spacing: 0.2px;
+  }
+  .run-btn:hover:not(:disabled) { opacity: 0.84; }
+  .run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RESULT PANEL ─────────────────────────────────── */
+  .result-panel {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .result-panel.visible { display: flex; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Verdict card */
+  .verdict-card {
+    background: var(--black);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  }
+
+  .verdict-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid #1E1E1E;
+  }
+
+  .verdict-route {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .verdict-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .verdict-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--white);
+  }
+
+  .badges { display: flex; gap: 6px; }
+
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    padding: 3px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Metrics grid */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid #1A1A1A;
+  }
+
+  .metric {
+    padding: 12px 16px;
+    border-right: 1px solid #1A1A1A;
+  }
+  .metric:last-child { border-right: none; }
+
+  .metric-lbl {
+    font-family: 'DM Mono', monospace;
+    font-size: 7.5px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .metric-val {
+    font-size: 12px;
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  /* Card sections */
+  .card-sections {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .section-lbl {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .section-text {
+    font-size: 13px;
+    color: #BBBBBB;
+    line-height: 1.65;
+  }
+
+  /* Model row */
+  .model-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #181818;
+    border-radius: 4px;
+    padding: 11px 14px;
+    border: 1px solid #252525;
+  }
+
+  .model-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--white);
+    font-weight: 500;
+  }
+
+  .model-why {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .savings-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  /* Response block */
+  .response-block {
+    background: #141414;
+    border-radius: 4px;
+    padding: 13px 15px;
+    border-left: 3px solid;
+  }
+
+  .response-text {
+    font-size: 12.5px;
+    color: #999;
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  /* Datawizz insight */
+  .insight-row {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  }
+
+  .insight-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+
+  .insight-text {
+    font-size: 12.5px;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  .insight-text strong { color: var(--black); }
+
+  /* ── EMPTY STATE ──────────────────────────────────── */
+  .empty-state {
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    padding: 48px 32px;
+    text-align: center;
+  }
+
+  .empty-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+
+  .empty-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .empty-sub {
+    font-size: 13px;
+    color: #AAA;
+    line-height: 1.5;
+  }
+
+  /* ── HOW IT WORKS ─────────────────────────────────── */
+  .how-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 48px 80px;
+  }
+
+  .how-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .how-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--black);
+  }
+
+  .how-sub {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .how-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  }
+
+  .how-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: #DDD;
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+
+  .how-card-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 6px;
+  }
+
+  .how-card-text {
+    font-size: 12.5px;
+    color: #666;
+    line-height: 1.6;
+  }
+
+  /* ── FOOTER ───────────────────────────────────────── */
+  footer {
+    background: var(--black);
+    padding: 24px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-left {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #444;
+    text-transform: uppercase;
+  }
+
+  .footer-right {
+    font-size: 12px;
+    color: #444;
+  }
+
+  /* ── RESPONSIVE ───────────────────────────────────── */
+  @media (max-width: 768px) {
+    header { padding: 0 20px; }
+    .hero { padding: 40px 20px 32px; }
+    .main { grid-template-columns: 1fr; padding: 0 20px 60px; }
+    .how-section { padding: 0 20px 60px; }
+    .how-grid { grid-template-columns: 1fr; }
+    footer { padding: 20px; flex-direction: column; gap: 8px; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <span class="header-logo">Datawizz</span>
+    <div class="header-sep"></div>
+    <span class="header-product">Support Triage Agent</span>
+  </div>
+  <span class="header-badge">Demo · Notion</span>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Agent Demo · Notion Support Workflow</div>
+  <h1 class="hero-title">Route the ticket.<br><em>Save the budget.</em></h1>
+  <p class="hero-sub">Every support ticket Notion receives is routed to the right model tier automatically. Low-complexity queries never hit a frontier model. This is what Datawizz does — invisibly, at scale.</p>
+
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-val">85–95%</div>
+      <div class="stat-label">Cost reduction</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">3</div>
+      <div class="stat-label">Model tiers</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">~$700K</div>
+      <div class="stat-label">Est. annual ACV</div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- INPUT PANEL -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Incoming Support Ticket</span>
+    </div>
+    <div class="panel-body">
+      <textarea id="ticket" placeholder="Paste a Notion support ticket here, or click an example below..." rows="5"></textarea>
+
+      <div class="examples-label">Try an example</div>
+      <div class="chips">
+        <div class="chip" onclick="loadEx(0)">🔑 Password reset</div>
+        <div class="chip" onclick="loadEx(1)">💳 Billing issue</div>
+        <div class="chip" onclick="loadEx(2)">⚙️ Permission denied</div>
+        <div class="chip" onclick="loadEx(3)">🔗 API 401 error</div>
+        <div class="chip" onclick="loadEx(4)">✨ Feature request</div>
+        <div class="chip" onclick="loadEx(5)">🚨 Data loss</div>
+      </div>
+
+      <button class="run-btn" id="runBtn" onclick="runTriage()">
+        <span id="btnContent">Run Triage Agent ↗</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULT PANEL -->
+  <div>
+    <div class="result-panel" id="resultPanel">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">⬡</div>
+      <div class="empty-title">Awaiting ticket</div>
+      <div class="empty-sub">Paste a support ticket or click an example.<br>The agent will classify, route, and recommend the right model.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="how-header">
+    <div class="how-title">How Datawizz works</div>
+    <div class="how-sub">Under the hood — invisible to engineers, transformative for the invoice</div>
+  </div>
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="how-num">01</div>
+      <div class="how-card-title">Classify task complexity</div>
+      <div class="how-card-text">Every incoming query is analyzed for task complexity — pattern-match vs. reasoning required. This decision happens in milliseconds before the query touches any LLM.</div>
+    </div>
+    <div class="how-card">
+      <div class="how-num">02</div>
+      <div class="how-card-title">Route to the right model</div>
+      <div class="how-card-text">Low-complexity queries go to a specialized 3B model. Medium complexity to a 7B model. Only genuinely hard queries reach the frontier model. Engineers never see the difference.</div>
+    </div>
+    <div class="how-card">
+      <div class="how-num">03</div>
+      <div class="how-card-title">Learn and improve</div>
+      <div class="how-card-text">The platform learns from every routing decision. Models improve continuously in production through reinforcement learning — the system gets smarter and cheaper over time.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-left">Datawizz · Notion Support Triage Demo</div>
+  <div class="footer-right">Built for Datawizz GTM · May 2026</div>
+</footer>
+
+<script>
+const EXAMPLES = [
+  "Hi, I forgot my password and the reset email isn't arriving. I've checked my spam folder. My email is ted@company.com.",
+  "I was charged twice this month — $16 and $16 on the same day. Can you refund one? My account is on the Plus plan.",
+  "I can't share a database with my team. It keeps saying permission denied even though I'm the workspace owner. This is blocking our entire team.",
+  "I'm using the Notion API and getting a 401 error with a valid integration token. Endpoint: /v1/databases/{id}/query. Full read/write access. Started failing at 2pm PST.",
+  "It would be amazing if Notion could support bidirectional sync with Google Sheets. We're constantly copying data. Would love to see this on the roadmap!",
+  "I think I accidentally deleted an entire database with 2 years of our company project history. It's not in trash. This is urgent — we're a 50-person team and this is mission critical data."
+];
+
+function loadEx(i) {
+  document.getElementById('ticket').value = EXAMPLES[i];
+}
+
+const COMPLEXITY_COLORS = {
+  Low:    { bg: '#1A6B52', badge_bg: 'rgba(26,107,82,0.15)', badge_txt: '#1A6B52', border: '#1A6B52' },
+  Medium: { bg: '#7A4800', badge_bg: 'rgba(122,72,0,0.12)',  badge_txt: '#7A4800', border: '#7A4800' },
+  High:   { bg: '#8B1A1A', badge_bg: 'rgba(139,26,26,0.12)', badge_txt: '#8B1A1A', border: '#8B1A1A' },
+};
+
+const ROUTE_COLORS = {
+  'Automated Response':       '#1A6B52',
+  'Tier-1 Support':           '#7A4800',
+  'Escalate to Engineering':  '#8B1A1A',
+};
+
+const MODEL_INFO = {
+  Low:    { model: 'Claude Haiku 3.5',          why: 'Pattern-match task — no complex reasoning needed',      savings: '~85% cost reduction', color: '#1A6B52' },
+  Medium: { model: 'Claude Sonnet 3.5',          why: 'Moderate reasoning — mid-tier model appropriate',      savings: '~60% cost reduction', color: '#7A4800' },
+  High:   { model: 'Claude Opus 4 (frontier)',   why: 'Complex reasoning required — frontier model needed',   savings: 'Frontier tier',       color: '#8B1A1A' },
+};
+
+function classify(text) {
+  const t = text.toLowerCase();
+  const isDataLoss   = /delet|lost|missing|recover|gone|accidental|trash|history|2 year/i.test(t);
+  const isAPI        = /api|401|403|endpoint|token|integration|webhook|/v1|query.*param/i.test(t);
+  const isBilling    = /charg|bill|invoice|refund|payment|subscri|paid|price|plan|cost|\$16/i.test(t);
+  const isPassword   = /password|reset|email.*not.*arriv|can'?t.*log|forgot|sign.?in|login/i.test(t);
+  const isPermission = /permission|denied|share|access|can'?t.*see|not.*visible|member|guest/i.test(t);
+  const isFeature    = /would.*love|feature|wish|request|suggest|roadmap|consider|add|support.*for/i.test(t);
+  const isUrgent     = /urgent|critical|block|entire team|mission|production|down|asap|50.person/i.test(t);
+
+  if (isDataLoss) return {
+    type: 'Data Recovery', complexity: 'High', urgency: isUrgent ? 'Critical' : 'High',
+    route: 'Escalate to Engineering',
+    reasoning: 'Data loss is irreversible and requires engineering access to database snapshots. No canned response can address this safely — the risk of a wrong answer is too high for a smaller model.',
+    response: `I completely understand how stressful this is — let's move fast. Our engineering team has tools to search system snapshots even if the database isn't visible in trash. I'm escalating this now and someone will be with you within the hour. Can you confirm your workspace name?`,
+    insight: 'This is a genuine frontier-model task. Multi-step reasoning about recovery paths and data integrity cannot be reliably handled by a smaller model — Datawizz routes this correctly to the frontier tier.'
+  };
+
+  if (isAPI) return {
+    type: 'Technical', complexity: 'High', urgency: isUrgent ? 'High' : 'Medium',
+    route: 'Escalate to Engineering',
+    reasoning: 'API debugging involves reasoning about auth flows, token scopes, rate limits, and timing — multiple variables that interact in non-obvious ways. A smaller model would pattern-match an answer that may not apply to this specific configuration.',
+    response: `Thanks for the detail — a 401 with a valid token usually points to a scope mismatch rather than the token itself being invalid. Can you confirm which permissions you granted when creating the integration? Did anything change in your workspace settings around 2pm PST?`,
+    insight: 'API integration bugs require multi-variable debugging that needs full reasoning capability. Datawizz correctly routes this to the frontier tier — the cost is justified by the accuracy requirement.'
+  };
+
+  if (isPermission && !isPassword) return {
+    type: 'Technical', complexity: 'Medium', urgency: isUrgent ? 'High' : 'Medium',
+    route: 'Tier-1 Support',
+    reasoning: "Permission errors follow a known but nuanced decision tree — workspace vs. page-level permissions, member vs. guest status. A support agent needs to walk through a structured troubleshooting sequence. A simple pattern-match model would miss the nuance but a frontier model is overkill.",
+    response: `This trips people up often — even workspace owners can be locked out by page-level permission overrides. Open the database, click Share, and check whether your teammates are listed there. If the database was created inside a private page, that page's permissions may be blocking access.`,
+    insight: 'Medium complexity — permission errors follow known patterns but require contextual judgment. A Sonnet-class 7B model handles this accurately at ~60% lower cost than the frontier model.'
+  };
+
+  if (isBilling) return {
+    type: 'Billing', complexity: 'Low', urgency: 'Medium',
+    route: 'Automated Response',
+    reasoning: 'Duplicate billing is a high-frequency, fully templatized ticket type. The resolution path is always the same: verify the charge, issue a refund, confirm plan status. No judgment calls needed — this is a pure lookup and action task.',
+    response: `I can see what happened and I'm sorry for the confusion. I've flagged a refund for the duplicate $16 charge — it should appear in 3–5 business days depending on your bank. Your Plus plan is active and unaffected.`,
+    insight: 'Billing queries are textbook small-model use cases. The model only needs to identify the issue type and return a templated response — a 3B Haiku model handles this at ~85% lower cost with identical accuracy.'
+  };
+
+  if (isPassword) return {
+    type: 'Account Access', complexity: 'Low', urgency: 'Low',
+    route: 'Automated Response',
+    reasoning: 'Password resets have a single, fixed resolution path: check spam, verify email address, resend reset link. Zero reasoning required. Zero account investigation needed. The perfect small-model task.',
+    response: `Happy to help. Try searching your inbox for an email from notion.so — these sometimes land in promotions or spam. Make sure you're entering the email address tied to your Notion account. I've just triggered a fresh reset to ted@company.com — give it a minute and check all folders.`,
+    insight: 'Password resets are the clearest automated resolution candidate in support — fixed decision tree, no reasoning, no account investigation. A Haiku 3B model handles this at ~85% cost reduction with perfect accuracy.'
+  };
+
+  if (isFeature) return {
+    type: 'Feature Request', complexity: 'Low', urgency: 'Low',
+    route: 'Automated Response',
+    reasoning: 'Feature requests have a single resolution path: acknowledge warmly, log to the product team, close. No troubleshooting, no account access, no judgment required. Pure template response.',
+    response: `Love this idea — bidirectional Google Sheets sync comes up regularly and it's genuinely on our radar. I've logged your vote with the product team. In the meantime, Notion's API supports automated syncs with a bit of setup — happy to point you to some community templates!`,
+    insight: 'Feature requests require only acknowledgment and logging — zero reasoning needed. A 3B model identifies the request type and returns the appropriate warm template at ~85% lower cost.'
+  };
+
+  return {
+    type: 'General', complexity: 'Medium', urgency: isUrgent ? 'High' : 'Medium',
+    route: 'Tier-1 Support',
+    reasoning: 'This ticket requires contextual judgment to understand what the user is experiencing and provide tailored guidance. The issue is not immediately obvious from the description and may require follow-up, but does not require engineering escalation.',
+    response: `Thanks for reaching out — happy to help figure this out. Could you share a bit more detail about what you're seeing and what you've already tried? That'll help me point you to the right fix quickly.`,
+    insight: 'General support questions require contextual reasoning but rarely frontier-level complexity. A Sonnet 7B model handles this accurately at ~60% lower cost than the frontier model.'
+  };
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('runBtn');
+  btn.disabled = on;
+  document.getElementById('btnContent').innerHTML = on
+    ? '<div class="spinner"></div> Analyzing...'
+    : 'Run Triage Agent ↗';
+}
+
+function runTriage() {
+  const ticket = document.getElementById('ticket').value.trim();
+  if (!ticket) return;
+
+  setLoading(true);
+  document.getElementById('emptyState').style.display = 'none';
+
+  setTimeout(() => {
+    const r = classify(ticket);
+    renderResult(r);
+    setLoading(false);
+  }, 700);
+}
+
+function renderResult(r) {
+  const cc  = COMPLEXITY_COLORS[r.complexity] || COMPLEXITY_COLORS.Medium;
+  const rc  = ROUTE_COLORS[r.route] || '#888';
+  const m   = MODEL_INFO[r.complexity] || MODEL_INFO.High;
+
+  const panel = document.getElementById('resultPanel');
+  panel.innerHTML = `
+    <!-- Verdict card -->
+    <div class="verdict-card">
+      <div class="verdict-top">
+        <div class="verdict-route">
+          <div class="verdict-dot" style="background:${rc}"></div>
+          <div class="verdict-name">${r.route}</div>
+        </div>
+        <div class="badges">
+          <span class="badge" style="background:${cc.badge_bg};color:${cc.badge_txt};border:1px solid ${cc.badge_txt}33">${r.complexity} Complexity</span>
+          <span class="badge" style="background:#1A1A1A;color:#666;border:1px solid #2A2A2A">${r.urgency} Urgency</span>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-lbl">Ticket type</div>
+          <div class="metric-val">${r.type}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-lbl">Complexity</div>
+          <div class="metric-val" style="color:${cc.badge_txt}">${r.complexity}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-lbl">Urgency</div>
+          <div class="metric-val">${r.urgency}</div>
+        </div>
+        <div class="metric">
+          <div class="metric-lbl">Resolution</div>
+          <div class="metric-val" style="font-size:11px">${r.route}</div>
+        </div>
+      </div>
+
+      <div class="card-sections">
+        <div>
+          <div class="section-lbl">Routing reasoning</div>
+          <div class="section-text">${r.reasoning}</div>
+        </div>
+
+        <div>
+          <div class="section-lbl">Model recommendation</div>
+          <div class="model-row">
+            <div>
+              <div class="model-name">${m.model}</div>
+              <div class="model-why">${m.why}</div>
+            </div>
+            <span class="savings-badge" style="background:${cc.badge_bg};color:${cc.badge_txt};border:1px solid ${cc.badge_txt}33">${m.savings}</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-lbl">Suggested first response</div>
+          <div class="response-block" style="border-left-color:${rc}">
+            <div class="response-text">"${r.response}"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datawizz insight -->
+    <div class="insight-row">
+      <span class="insight-tag">Datawizz</span>
+      <span class="insight-text">${r.insight} <strong>In production, this routing happens automatically — engineers never see it. They just see a smaller invoice.</strong></span>
+    </div>
+  `;
+
+  panel.classList.add('visible');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+</body>
+</html>
